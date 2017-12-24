@@ -1,5 +1,6 @@
 package com.example.daniel.todo_list;
 
+import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -30,6 +31,9 @@ public class Overview extends AppCompatActivity{
         b5 = findViewById(R.id.cat_5);
         b6 = findViewById(R.id.cat_6);
         b7 = findViewById(R.id.cat_7);
+        b8 = findViewById(R.id.cat_8);
+        b9 = findViewById(R.id.cat_9);
+        b10 = findViewById(R.id.cat_10);
 
         // initialize buttons in use
         buttonsInUse = new ArrayList<Button>();
@@ -46,21 +50,25 @@ public class Overview extends AppCompatActivity{
         buttonsInUse.add(b9);
         buttonsInUse.add(b10);
 
-        //b1.setText("asdfasdf");
-        /*
-        b1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(b1.getBackground().equals(getResources().getColor(R.color.incomplete))){
-                    b1.setBackgroundColor(getResources().getColor(R.color.complete));
+        for(int i = 0; i < buttonsInUse.size(); i++){
+            final int j = i;
+            buttonsInUse.get(j).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int colorId = ((ColorDrawable) buttonsInUse.get(j).getBackground()).getColor();
+                    if(colorId == getResources().getColor(R.color.incomplete)){
+                        buttonsInUse.get(j).setBackgroundColor(getResources().getColor(R.color.complete));
+                        buttonsInUse.get(j).setText("Complete");
+                    }
+                    else {
+                        buttonsInUse.get(j).setBackgroundColor(getResources().getColor(R.color.incomplete));
+                        buttonsInUse.get(j).setText("Incomplete");
+                    }
                 }
-                else {
-                    b1.setBackgroundColor(getResources().getColor(R.color.incomplete));
-                }
-                //b1.setText("asdfasdf");
-            }
-        });
-        */
+            });
+
+        }
+
         /*
         // add click listener to each button in use to change color on click
         for(int i = 0; i < buttonsInUse.size(); i++){
