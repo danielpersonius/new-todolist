@@ -1,5 +1,6 @@
 package com.example.daniel.todo_list;
 
+import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -55,37 +56,15 @@ public class Overview extends AppCompatActivity{
             buttonsInUse.get(j).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    int colorId = ((ColorDrawable) buttonsInUse.get(j).getBackground()).getColor();
-                    if(colorId == getResources().getColor(R.color.incomplete)){
-                        buttonsInUse.get(j).setBackgroundColor(getResources().getColor(R.color.complete));
-                        //buttonsInUse.get(j).setText("Complete");
-                    }
-                    else {
-                        buttonsInUse.get(j).setBackgroundColor(getResources().getColor(R.color.incomplete));
-                        //buttonsInUse.get(j).setText("Incomplete");
-                    }
-                }
-            });
-
-        }
-
-        /*
-        // add click listener to each button in use to change color on click
-        for(int i = 0; i < buttonsInUse.size(); i++){
-            final int j = i;
-            buttonsInUse.get(j).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(buttonsInUse.get(j).getBackground().equals(getResources().getColor(R.color.incomplete))){
-                        buttonsInUse.get(j).setBackgroundColor(getResources().getColor(R.color.complete));
-                    }
-                    else {
-                        buttonsInUse.get(j).setBackgroundColor(getResources().getColor(R.color.incomplete));
-                    }
+                    showCategoryPage();
                 }
             });
         }
-        */
+    }
+
+    public void showCategoryPage(){
+        Intent intent = new Intent(this, CategoryPage.class);
+        startActivity(intent);
     }
 
 
