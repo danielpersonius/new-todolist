@@ -1,5 +1,6 @@
 package com.example.daniel.todo_list;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
