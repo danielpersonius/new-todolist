@@ -1,5 +1,7 @@
 package com.example.daniel.todo_list;
 
+import android.app.SearchManager;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
@@ -20,6 +22,7 @@ public class CategoryPage extends AppCompatActivity{
 
     // just the buttons being used
     ArrayList<Button> buttonsInUse;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +57,7 @@ public class CategoryPage extends AppCompatActivity{
                     int colorId = ((ColorDrawable) buttonsInUse.get(j).getBackground()).getColor();
                     if(colorId == getResources().getColor(R.color.incomplete)){
                         buttonsInUse.get(j).setBackgroundColor(getResources().getColor(R.color.complete));
+
                     }
                     else {
                         buttonsInUse.get(j).setBackgroundColor(getResources().getColor(R.color.incomplete));
