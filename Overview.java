@@ -67,5 +67,13 @@ public class Overview extends AppCompatActivity{
         startActivity(intent);
     }
 
-
+    public boolean checkIfCategoryCompleted(ArrayList<Button> al){
+        for(Button b : al){
+            int colorId = ((ColorDrawable) b.getBackground()).getColor();
+            if(colorId == getResources().getColor(R.color.incomplete)){
+                return false;
+            }
+        }
+        return true;
+    }
 }
