@@ -58,11 +58,11 @@ public class Overview extends AppCompatActivity{
                     int colorId = ((ColorDrawable) buttonsInUse.get(j).getBackground()).getColor();
                     if(colorId == getResources().getColor(R.color.incomplete)){
                         buttonsInUse.get(j).setBackgroundColor(getResources().getColor(R.color.complete));
-                        buttonsInUse.get(j).setText("Complete");
+                        //buttonsInUse.get(j).setText("Complete");
                     }
                     else {
                         buttonsInUse.get(j).setBackgroundColor(getResources().getColor(R.color.incomplete));
-                        buttonsInUse.get(j).setText("Incomplete");
+                        //buttonsInUse.get(j).setText("Incomplete");
                     }
                 }
             });
