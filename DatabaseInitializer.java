@@ -3,8 +3,7 @@ package com.example.daniel.todo_list;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
-
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * initialize database
@@ -23,7 +22,7 @@ public class DatabaseInitializer {
         populateWithTestData(db);
     }
 
-    private static ItemEntity addCountry(final AppDatabase db, ItemEntity item) {
+    private static ItemEntity addItem(final AppDatabase db, ItemEntity item) {
         db.itemDAO().insertAll(item);
         return item;
     }
@@ -31,10 +30,10 @@ public class DatabaseInitializer {
     private static void populateWithTestData(AppDatabase db) {
         ItemEntity item = new ItemEntity();
         item.setName("France");
-        item.setComplete(false);
-        addCountry(db, item);
+        item.setComplete(0);
+        addItem(db, item);
 
-        ArrayList<ItemEntity> itemList = db.itemDAO().getAll();
+        List<ItemEntity> itemList = db.itemDAO().getAll();
         Log.d(DatabaseInitializer.TAG, "Rows Count: " + itemList.size());
     }
 

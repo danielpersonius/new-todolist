@@ -21,7 +21,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        pwdBox = (EditText) findViewById(R.id.pwdBox);
+        // insert dummy data
+        AppDatabase db = AppDatabase.getAppDatabase(getApplicationContext());
+        AppDatabase.populateCategoryWithTestData(db);
+        AppDatabase.populateItemWithTestData(db);
+
+        pwdBox = findViewById(R.id.pwdBox);
 
         // temp hard code password
         pwd = "password";
