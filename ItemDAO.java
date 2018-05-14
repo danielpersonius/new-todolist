@@ -51,6 +51,11 @@ public interface ItemDAO {
     @Update
     void updateItems(ItemEntity... items);
 
+//    @Query("UPDATE item SET ")
+
+    @Update
+    void updateItem(ItemEntity item);
+
     @Query("UPDATE item SET complete=:isComplete WHERE itemId=:itemId")
     void updateItemCompletion(int itemId, int isComplete);
 

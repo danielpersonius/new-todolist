@@ -11,7 +11,7 @@ import android.util.Log;
  * Created by daniel on 12/25/17.
  */
 
-@Database(entities = {ItemEntity.class, CategoryEntity.class}, version = 3)
+@Database(entities = {ItemEntity.class, CategoryEntity.class}, version = 4)
 public abstract class AppDatabase extends RoomDatabase{
     private static AppDatabase INSTANCE;
 
@@ -58,18 +58,33 @@ public abstract class AppDatabase extends RoomDatabase{
             CategoryEntity cat1 = new CategoryEntity();
             cat1.setName("music");
             cat1.setComplete(0);
+            cat1.setIsActive(1);
 
             CategoryEntity cat2 = new CategoryEntity();
             cat2.setName("cs");
             cat2.setComplete(0);
+            cat2.setIsActive(1);
 
             CategoryEntity cat3 = new CategoryEntity();
             cat3.setName("self");
             cat3.setComplete(0);
+            cat3.setIsActive(1);
+
+            CategoryEntity cat4 = new CategoryEntity();
+            cat4.setName("work");
+            cat4.setComplete(0);
+            cat4.setIsActive(0);
+
+            CategoryEntity cat5 = new CategoryEntity();
+            cat5.setName("study");
+            cat5.setComplete(0);
+            cat5.setIsActive(0);
 
             addCategoryItem(db, cat1);
             addCategoryItem(db, cat2);
             addCategoryItem(db, cat3);
+            addCategoryItem(db, cat4);
+            addCategoryItem(db, cat5);
         }
         catch(Exception e) {
             Log.d("CAT DEL", e.getMessage());
@@ -106,11 +121,35 @@ public abstract class AppDatabase extends RoomDatabase{
             item4.setName("wr");
             item4.setComplete(0);
 
+            ItemEntity item5 = new ItemEntity();
+            item5.setCategory(db.categoryDAO().findByName("music").getCategoryId());
+            item5.setName("read");
+            item5.setComplete(0);
+
+            ItemEntity item6 = new ItemEntity();
+            item6.setCategory(db.categoryDAO().findByName("music").getCategoryId());
+            item6.setName("discover");
+            item6.setComplete(0);
+
+            ItemEntity item7 = new ItemEntity();
+            item7.setCategory(db.categoryDAO().findByName("music").getCategoryId());
+            item7.setName("organize playlists");
+            item7.setComplete(0);
+
+            ItemEntity item8 = new ItemEntity();
+            item8.setCategory(db.categoryDAO().findByName("music").getCategoryId());
+            item8.setName("find packs");
+            item8.setComplete(0);
+
             // add items
             addItem(db, item1);
             addItem(db, item2);
             addItem(db, item3);
             addItem(db, item4);
+            addItem(db, item5);
+            addItem(db, item6);
+            addItem(db, item7);
+            addItem(db, item8);
         }
         catch(Exception e) {
             Log.d("BAD POP", "bad populate: " + e.getMessage());

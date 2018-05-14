@@ -11,11 +11,24 @@ import android.arch.persistence.room.*;
 public interface CategoryDAO {
 
     // SELECTs
+    // get all as entities
     @Query("SELECT * FROM category")
     List<CategoryEntity> getAll();
 
+    // get only active
+    @Query("SELECT * FROM category WHERE isActive=1")
+    List<CategoryEntity> getAllActive();
+
+    // just get active names
+    @Query("SELECT name FROM category")
+    List<String> getAllCategoryNames();
+
     @Query("SELECT * FROM category WHERE name LIKE :name")
     CategoryEntity findByName(String name);
+
+    // get id by name
+    @Query("SELECT categoryId FROM category WHERE name=:name")
+    int getCategoryId(String name);
 
     @Query("SELECT COUNT(*) FROM category")
     int countCategories();
@@ -39,5 +52,7 @@ public interface CategoryDAO {
     @Update
     void updateItems(CategoryEntity... categories);
 
+    @Update
+    void updateItem(CategoryEntity category);
 
 }

@@ -34,9 +34,9 @@ public class ItemEntity {
 
     }
 
-    public ItemEntity(String name, int complete){
+    ItemEntity(String name, int categoryId){
         this.name = name;
-        this.complete = complete;
+        this.category = categoryId;
     }
 
     public void setItemId(int itemId){

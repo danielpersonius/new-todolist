@@ -16,11 +16,16 @@ public class CategoryEntity {
     @ColumnInfo(name = "complete")
     private int complete;
 
-    CategoryEntity(){}
+    @ColumnInfo(name = "isActive")
+    private int isActive;
 
-    public CategoryEntity(String name, int complete){
+    CategoryEntity(){
+
+    }
+
+    CategoryEntity(String name, int isActive){
         this.name = name;
-        this.complete = complete;
+        this.isActive = isActive;
     }
 
     public void setCategoryId(int itemId){
@@ -35,6 +40,8 @@ public class CategoryEntity {
         this.name = name;
     }
 
+    public void setIsActive(int isActive){ this.isActive = isActive; }
+
     public String getName(){
         return name;
     }
@@ -46,5 +53,7 @@ public class CategoryEntity {
     public int getComplete(){
         return complete;
     }
+
+    public int getIsActive() { return isActive; }
 
 }

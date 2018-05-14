@@ -22,9 +22,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // insert dummy data
-        AppDatabase db = AppDatabase.getAppDatabase(getApplicationContext());
-        AppDatabase.populateCategoryWithTestData(db);
-        AppDatabase.populateItemWithTestData(db);
+        //AppDatabase db = AppDatabase.getAppDatabase(getApplicationContext());
+        //AppDatabase.populateCategoryWithTestData(db);
+        //AppDatabase.populateItemWithTestData(db);
 
         pwdBox = findViewById(R.id.pwdBox);
 
@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if(checkPassword()){
                     showOverview();
+                    //showInPlace();
                 }
             }
 
@@ -70,6 +71,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void showOverview(){
         Intent intent = new Intent(this, Overview.class);
+        startActivity(intent);
+    }
+
+    public void showInPlace(){
+        Intent intent = new Intent(this, InPlace.class);
         startActivity(intent);
     }
 
