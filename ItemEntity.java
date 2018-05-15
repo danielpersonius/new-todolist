@@ -24,6 +24,11 @@ public class ItemEntity {
     @ColumnInfo(name = "name")
     private String name;
 
+    /**
+     * 0 - incomplete, not started
+     * 1 - complete
+     * 2 - incomplete, in progress
+     */
     @ColumnInfo(name = "complete")
     private int complete;
 

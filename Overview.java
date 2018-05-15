@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -63,50 +62,7 @@ public class Overview extends AppCompatActivity{
                 setButtonColorAndAlpha(b, categories.get(i), db);
 
                 // click listeners
-                b.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        showCategoryPage(b.getText().toString());
-                    }
-                });
-
-                b.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(final View view) {
-                        // get item by current name before name change
-                        final CategoryEntity cat = db.categoryDAO().findByName(b.getText().toString());
-                        final EditText input = new EditText(Overview.this);
-                        // set up dialog box
-                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(Overview.this);
-                        alertDialog.setView(input);
-                        alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                b.setText(input.getText().toString());
-                                // change item name
-                                cat.setName(b.getText().toString());
-
-                                // change in db
-                                try{
-                                    db.categoryDAO().updateItems(cat);
-                                }
-                                catch(Exception e){
-                                    Toast.makeText(Overview.this, "category update failed", Toast.LENGTH_SHORT).show();
-                                    Log.d("UPDATE CATEGORY", "category update failed: " + e.getMessage());
-                                }
-                            }
-                        });
-                        // cancel button
-                        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface d, int i) {
-                                d.cancel();
-                            }
-                        });
-                        alertDialog.show();
-
-                        return true;
-                    }
-                });
+                addButtonListeners(b, buttonContainer, db);
 
                 // add to layout
                 buttonContainer.addView(b);
@@ -119,8 +75,7 @@ public class Overview extends AppCompatActivity{
                 @Override
                 public void onClick(View view) {
                     // insert
-                    addItem(buttonContainer, db);
-
+                    addCategory(buttonContainer, db);
                 }
             });
             buttonContainer.addView(addButton);
@@ -160,7 +115,7 @@ public class Overview extends AppCompatActivity{
         boolean isComplete = true;
 
         for (ItemEntity item : categoryItems) {
-            if (item.getComplete() == 0) {
+            if (item.getComplete() == 0 || item.getComplete() == 2) {
                 isComplete = false;
                 break;
             }
@@ -198,16 +153,11 @@ public class Overview extends AppCompatActivity{
         }
         // lower alpha if empty category, else default to full 255
         if(isCategoryEmpty(category, db)) {
-            b.getBackground().setAlpha(150);
+            b.getBackground().setAlpha(100);
         }
     }
 
-    public void addItem(final LinearLayout buttonContainer, final AppDatabase db){
-        // dialog box
-        // get custom layout with EditText and Spinner
-        //LayoutInflater inflater = getLayoutInflater();
-        //View dialogLayout = inflater.inflate(R.layout.add_item, null);
-
+    public void addCategory(final LinearLayout buttonContainer, final AppDatabase db){
         //final EditText input = dialogLayout.findViewById(R.id.new_item_name);
         final EditText input = new EditText(Overview.this);
         AlertDialog.Builder addDialog = new AlertDialog.Builder(Overview.this);
@@ -222,11 +172,13 @@ public class Overview extends AppCompatActivity{
                             db.categoryDAO().insertAll(newCategory);
                             // add new button to layout
                             Button newCategoryButton = new Button(Overview.this);
-                            newCategoryButton.setBackgroundColor(getResources().getColor(R.color.incomplete));
+                            setButtonColorAndAlpha(newCategoryButton, newCategory, db);
                             newCategoryButton.setText(newCategory.getName());
-                            newCategoryButton.setHeight(250);
+                            newCategoryButton.setHeight(350);
                             newCategoryButton.setTextSize(30);
                             newCategoryButton.setTextColor(-1);
+                            addButtonListeners(newCategoryButton, buttonContainer, db);
+                            buttonsInUse.add(newCategoryButton);
 
                             buttonContainer.addView(newCategoryButton);
 
@@ -245,6 +197,101 @@ public class Overview extends AppCompatActivity{
                     }
                 });
         addDialog.show();
+    }
+
+    public void addButtonListeners(final Button button, final LinearLayout buttonContainer, final AppDatabase db){
+        // set edit listeners
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showCategoryPage(button.getText().toString());
+            }
+        });
+
+        //
+        button.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(final View view) {
+                // get item to change name or delete
+                final CategoryEntity category = db.categoryDAO().findByName(button.getText().toString());
+                AlertDialog.Builder builder = new AlertDialog.Builder(Overview.this);
+                builder.setTitle("options")
+                        //
+                        .setPositiveButton("change name", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                final EditText input = new EditText(Overview.this);
+                                // fill in current name
+                                input.setText(button.getText());
+                                // set cursor at end
+                                input.setSelection(input.getText().length());
+
+                                // set up dialog box
+                                AlertDialog.Builder alertDialog = new AlertDialog.Builder(Overview.this);
+                                alertDialog.setTitle("change name")
+                                        .setView(input)
+                                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                button.setText(input.getText().toString());
+                                                // change item name
+                                                category.setName(button.getText().toString());
+                                                // change in db
+                                                try{
+                                                    db.categoryDAO().updateItem(category);
+                                                }
+                                                catch(Exception e){
+                                                    // show toast
+                                                    Toast.makeText(Overview.this, "Could not change name", Toast.LENGTH_SHORT).show();
+                                                    Log.d("UPDATE", "failure updating "  + category.getName() + ": " + category.getCategoryId() + " - " + e.getMessage());
+                                                }
+                                            }
+                                        })
+                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int i) {
+                                                dialog.cancel();
+                                            }
+                                        });
+                                alertDialog.create().show();
+                            }
+                        })
+                        .setNegativeButton("delete", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                db.categoryDAO().delete(category);
+                                // remove button
+                                buttonContainer.removeView(button);
+                            }
+                        })
+                        .setNeutralButton("cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+//
+//                         alertDialog.setItems(new CharSequence[]
+//                                         {"change name", "delete"},
+//                                 new DialogInterface.OnClickListener() {
+//                                     public void onClick(DialogInterface dialog, int which) {
+//                                         // The 'which' argument contains the index position of the selected item
+//                                         switch (which) {
+//                                             case 0:
+//                                                 Toast.makeText(CategoryPage.this, "1", Toast.LENGTH_SHORT).show();
+//
+//                                                 break;
+//                                             case 1:
+//                                                 Toast.makeText(CategoryPage.this, "2", Toast.LENGTH_SHORT).show();
+//                                                 break;
+//                                         }
+//                                     }
+//                                 });
+
+                builder.create().show();
+
+                return true;
+            }
+        });
     }
 
     @Override

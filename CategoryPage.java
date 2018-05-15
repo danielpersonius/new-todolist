@@ -1,30 +1,18 @@
 package com.example.daniel.todo_list;
 
+import android.support.v7.app.ActionBar;
 import android.app.AlertDialog;
-import android.app.SearchManager;
-import android.arch.persistence.room.Room;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.Toast;
-
-import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -39,6 +27,11 @@ public class CategoryPage extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // remove title bar
+        ActionBar bar = this.getSupportActionBar();
+        if(bar != null){
+            bar.hide();
+        }
         setContentView(R.layout.category_page);
 
         // get category name
@@ -72,67 +65,16 @@ public class CategoryPage extends AppCompatActivity{
                 if(isComplete == 1){
                     b.setBackgroundColor(getResources().getColor(R.color.complete));
                 }
+                else if(isComplete == 2){
+                    b.setBackgroundColor(getResources().getColor(R.color.in_progress));
+                }
                 else {
                     b.setBackgroundColor(getResources().getColor(R.color.incomplete));
                 }
 
-                // set edit listeners
-                b.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        int colorId = ((ColorDrawable) b.getBackground()).getColor();
-                        if(colorId == getResources().getColor(R.color.incomplete)){
-                            // change color
-                            b.setBackgroundColor(getResources().getColor(R.color.complete));
-                            // change completion status
-                            db.itemDAO().updateItemCompletion(db.itemDAO().findByName(b.getText().toString()).getItemId(), 1);
-                        }
-                        else {
-                            b.setBackgroundColor(getResources().getColor(R.color.incomplete));
-                            // change completion status
-                            db.itemDAO().updateItemCompletion(db.itemDAO().findByName(b.getText().toString()).getItemId(), 0);
-                        }
-                    }
-                });
+                // add listeners
+                addButtonListeners(b, buttonContainer, db);
 
-                b.setOnLongClickListener(new View.OnLongClickListener() {
-                     @Override
-                     public boolean onLongClick(final View view) {
-                         // get item by current name before name change
-                         final ItemEntity item = db.itemDAO().findByName(b.getText().toString());
-                         final EditText input = new EditText(CategoryPage.this);
-                         // set up dialog box
-                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(CategoryPage.this);
-                         alertDialog.setTitle("change name")
-                                 .setView(input)
-                                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                             public void onClick(DialogInterface dialog, int which) {
-                                 b.setText(input.getText().toString());
-                                 // change item name
-                                 item.setName(b.getText().toString());
-
-                                 // change in db
-                                 try{
-                                     db.itemDAO().updateItem(item);
-                                 }
-                                 catch(Exception e){
-                                     // show toast
-                                     Log.d("UPDATE", "failure inserting "  + item.getItemId() + ": " + e.getMessage());
-                                 }
-                             }
-                         });
-                         // cancel button
-                         alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                             @Override
-                             public void onClick(DialogInterface d, int i) {
-                                 d.cancel();
-                             }
-                         });
-                         alertDialog.show();
-
-                        return true;
-                     }
-                 });
                 // add to layout
                 buttonContainer.addView(b);
                 buttonsInUse.add(b);
@@ -144,7 +86,6 @@ public class CategoryPage extends AppCompatActivity{
                 public void onClick(View view) {
                     // insert
                     addItem(buttonContainer, categoryId, db);
-
                 }
             });
 
@@ -152,6 +93,20 @@ public class CategoryPage extends AppCompatActivity{
         catch(Exception e){
             Log.d("BAD GET", "bad get: " + e.getMessage());
         }
+    }
+
+    /**
+     * this is called when the activity resumes, e.g. on back button press, since onCreate is not called then
+     * it is called so that button colors are updated
+     */
+    @Override
+    public void onResume(){
+        super.onResume();
+        // db
+        AppDatabase db = AppDatabase.getAppDatabase(getApplicationContext());
+
+        Log.d("RESUME", "resumed");
+
     }
 
     /**
@@ -228,6 +183,8 @@ public class CategoryPage extends AppCompatActivity{
                             newItemButton.setHeight(250);
                             newItemButton.setTextSize(30);
                             newItemButton.setTextColor(-1);
+                            // add listeners
+                            addButtonListeners(newItemButton, buttonContainer, db);
 
                             buttonContainer.addView(newItemButton);
 
@@ -246,5 +203,119 @@ public class CategoryPage extends AppCompatActivity{
                     }
                 });
         addDialog.show();
+    }
+
+    public void addButtonListeners(final Button button, final LinearLayout buttonContainer, final AppDatabase db){
+        // set edit listeners
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int colorId = ((ColorDrawable) button.getBackground()).getColor();
+                // can't use switch statement since get color int not resolvable at compile time
+                // if not started, set to in progress
+                if(colorId == getResources().getColor(R.color.incomplete)){
+                    // change color
+                    button.setBackgroundColor(getResources().getColor(R.color.in_progress));
+                    // change in db
+                    db.itemDAO().updateItemCompletion(db.itemDAO().findByName(button.getText().toString()).getItemId(), 2);
+                }
+                else if(colorId == getResources().getColor(R.color.in_progress)){
+                    button.setBackgroundColor(getResources().getColor(R.color.complete));
+                    db.itemDAO().updateItemCompletion(db.itemDAO().findByName(button.getText().toString()).getItemId(), 1);
+                    // move button to bottom of layout
+                    //buttonContainer.removeView(button);
+                    //buttonContainer.addView(button);
+                }
+                else {
+                    button.setBackgroundColor(getResources().getColor(R.color.incomplete));
+                    db.itemDAO().updateItemCompletion(db.itemDAO().findByName(button.getText().toString()).getItemId(), 0);
+                }
+            }
+        });
+
+        //
+        button.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(final View view) {
+                // get item to change name or delete
+                final ItemEntity item = db.itemDAO().findByName(button.getText().toString());
+                AlertDialog.Builder builder = new AlertDialog.Builder(CategoryPage.this);
+                builder.setTitle("options")
+                        //
+                        .setPositiveButton("change name", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                final EditText input = new EditText(CategoryPage.this);
+                                // fill in current name
+                                input.setText(button.getText());
+                                // set cursor at end
+                                input.setSelection(input.getText().length());
+
+                                // set up dialog box
+                                AlertDialog.Builder alertDialog = new AlertDialog.Builder(CategoryPage.this);
+                                alertDialog.setTitle("change name")
+                                        .setView(input)
+                                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                button.setText(input.getText().toString());
+                                                // change item name
+                                                item.setName(button.getText().toString());
+                                                // change in db
+                                                try{
+                                                    db.itemDAO().updateItem(item);
+                                                }
+                                                catch(Exception e){
+                                                    // show toast
+                                                    Toast.makeText(CategoryPage.this, "Could not change name", Toast.LENGTH_SHORT).show();
+                                                    Log.d("UPDATE", "failure updating "  + item.getItemId() + ": " + e.getMessage());
+                                                }
+                                            }
+                                        })
+                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int i) {
+                                                dialog.cancel();
+                                            }
+                                        });
+                                alertDialog.create().show();
+                            }
+                        })
+                        .setNegativeButton("delete", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                db.itemDAO().delete(item);
+                                // remove button
+                                buttonContainer.removeView(button);
+                            }
+                        })
+                        .setNeutralButton("cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+//
+//                         alertDialog.setItems(new CharSequence[]
+//                                         {"change name", "delete"},
+//                                 new DialogInterface.OnClickListener() {
+//                                     public void onClick(DialogInterface dialog, int which) {
+//                                         // The 'which' argument contains the index position of the selected item
+//                                         switch (which) {
+//                                             case 0:
+//                                                 Toast.makeText(CategoryPage.this, "1", Toast.LENGTH_SHORT).show();
+//
+//                                                 break;
+//                                             case 1:
+//                                                 Toast.makeText(CategoryPage.this, "2", Toast.LENGTH_SHORT).show();
+//                                                 break;
+//                                         }
+//                                     }
+//                                 });
+
+                builder.create().show();
+
+                return true;
+            }
+        });
     }
 }

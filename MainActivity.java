@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 
@@ -27,7 +28,8 @@ public class MainActivity extends AppCompatActivity {
         //AppDatabase.populateItemWithTestData(db);
 
         pwdBox = findViewById(R.id.pwdBox);
-
+        // center text
+        pwdBox.setGravity(Gravity.CENTER_HORIZONTAL);
         // temp hard code password
         pwd = "password";
         inputStr = "";
@@ -42,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if(checkPassword()){
                     showOverview();
-                    //showInPlace();
                 }
             }
 
@@ -71,11 +72,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void showOverview(){
         Intent intent = new Intent(this, Overview.class);
-        startActivity(intent);
-    }
-
-    public void showInPlace(){
-        Intent intent = new Intent(this, InPlace.class);
         startActivity(intent);
     }
 
