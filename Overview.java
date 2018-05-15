@@ -269,24 +269,6 @@ public class Overview extends AppCompatActivity{
                                 dialog.cancel();
                             }
                         });
-//
-//                         alertDialog.setItems(new CharSequence[]
-//                                         {"change name", "delete"},
-//                                 new DialogInterface.OnClickListener() {
-//                                     public void onClick(DialogInterface dialog, int which) {
-//                                         // The 'which' argument contains the index position of the selected item
-//                                         switch (which) {
-//                                             case 0:
-//                                                 Toast.makeText(CategoryPage.this, "1", Toast.LENGTH_SHORT).show();
-//
-//                                                 break;
-//                                             case 1:
-//                                                 Toast.makeText(CategoryPage.this, "2", Toast.LENGTH_SHORT).show();
-//                                                 break;
-//                                         }
-//                                     }
-//                                 });
-
                 builder.create().show();
 
                 return true;

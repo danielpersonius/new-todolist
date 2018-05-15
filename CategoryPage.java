@@ -117,54 +117,6 @@ public class CategoryPage extends AppCompatActivity{
      * @param db - database handle
      */
     public void addItem(final LinearLayout buttonContainer, final int categoryId, final AppDatabase db){
-        // below is to be able to choose category in the dialog
-
-        // dialog box
-        // get custom layout with EditText and Spinner
-        //LayoutInflater inflater = getLayoutInflater();
-        //View dialogLayout = inflater.inflate(R.layout.add_item, null);
-//
-//        // name text input and dropdown
-//        //final EditText input = new EditText(CategoryPage.this);
-//        final EditText input = dialogLayout.findViewById(R.id.new_item_name);
-//
-//        // Spinner
-//        final Spinner spinner = dialogLayout.findViewById(R.id.category_spinner);
-//        List<String> categoryNames = db.categoryDAO().getAllCategoryNames();
-//
-//        final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this, R.layout.category_spinner_item, categoryNames);
-//        spinnerArrayAdapter.setDropDownViewResource(R.layout.category_spinner_item);
-//
-//        spinner.setAdapter(spinnerArrayAdapter);
-//
-//
-//        AlertDialog.Builder alertDialog = new AlertDialog.Builder(CategoryPage.this);
-//        alertDialog.setTitle("add item")
-//                .setView(dialogLayout)
-//                .setPositiveButton("add", new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        // create item
-//                        final ItemEntity newItem = new ItemEntity(input.getText().toString(), db.categoryDAO().getCategoryId(spinner.getSelectedItem().toString()));
-//                        // insert
-//                        try {
-//                            db.itemDAO().insertAll(newItem);
-//                        } catch (Exception e) {
-//                            // toast
-//                            Toast.makeText(CategoryPage.this, "could not add item", Toast.LENGTH_SHORT).show();
-//                            Log.d("INSERT ITEM", "item insert failed: " + e.getMessage());
-//                        }
-//                    }
-//                })
-//                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-//                    // cancel button
-//                    @Override
-//                    public void onClick(DialogInterface d, int i) {
-//                        d.cancel();
-//                    }
-//        });
-//        alertDialog.show();
-
-        //final EditText input = dialogLayout.findViewById(R.id.new_item_name);
         final EditText input = new EditText(CategoryPage.this);
         AlertDialog.Builder addDialog = new AlertDialog.Builder(CategoryPage.this);
         addDialog.setTitle("add item")
@@ -222,9 +174,6 @@ public class CategoryPage extends AppCompatActivity{
                 else if(colorId == getResources().getColor(R.color.in_progress)){
                     button.setBackgroundColor(getResources().getColor(R.color.complete));
                     db.itemDAO().updateItemCompletion(db.itemDAO().findByName(button.getText().toString()).getItemId(), 1);
-                    // move button to bottom of layout
-                    //buttonContainer.removeView(button);
-                    //buttonContainer.addView(button);
                 }
                 else {
                     button.setBackgroundColor(getResources().getColor(R.color.incomplete));
@@ -294,23 +243,6 @@ public class CategoryPage extends AppCompatActivity{
                                 dialog.cancel();
                             }
                         });
-//
-//                         alertDialog.setItems(new CharSequence[]
-//                                         {"change name", "delete"},
-//                                 new DialogInterface.OnClickListener() {
-//                                     public void onClick(DialogInterface dialog, int which) {
-//                                         // The 'which' argument contains the index position of the selected item
-//                                         switch (which) {
-//                                             case 0:
-//                                                 Toast.makeText(CategoryPage.this, "1", Toast.LENGTH_SHORT).show();
-//
-//                                                 break;
-//                                             case 1:
-//                                                 Toast.makeText(CategoryPage.this, "2", Toast.LENGTH_SHORT).show();
-//                                                 break;
-//                                         }
-//                                     }
-//                                 });
 
                 builder.create().show();
 
