@@ -11,7 +11,7 @@ import android.util.Log;
  * Created by daniel on 12/25/17.
  */
 
-@Database(entities = {ItemEntity.class, CategoryEntity.class}, version = 4)
+@Database(entities = {ItemEntity.class, CategoryEntity.class}, version = 5)
 public abstract class AppDatabase extends RoomDatabase{
     private static AppDatabase INSTANCE;
 
@@ -57,27 +57,27 @@ public abstract class AppDatabase extends RoomDatabase{
 
             CategoryEntity cat1 = new CategoryEntity();
             cat1.setName("music");
-            cat1.setComplete(0);
+            cat1.setIsComplete(0);
             cat1.setIsActive(1);
 
             CategoryEntity cat2 = new CategoryEntity();
             cat2.setName("cs");
-            cat2.setComplete(0);
+            cat2.setIsComplete(0);
             cat2.setIsActive(1);
 
             CategoryEntity cat3 = new CategoryEntity();
             cat3.setName("self");
-            cat3.setComplete(0);
+            cat3.setIsComplete(0);
             cat3.setIsActive(1);
 
             CategoryEntity cat4 = new CategoryEntity();
             cat4.setName("work");
-            cat4.setComplete(0);
+            cat4.setIsComplete(0);
             cat4.setIsActive(0);
 
             CategoryEntity cat5 = new CategoryEntity();
             cat5.setName("study");
-            cat5.setComplete(0);
+            cat5.setIsComplete(0);
             cat5.setIsActive(0);
 
             addCategoryItem(db, cat1);

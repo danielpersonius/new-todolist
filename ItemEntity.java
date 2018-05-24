@@ -35,13 +35,17 @@ public class ItemEntity {
     @ColumnInfo(name = "category")
     private int category;
 
+    @ColumnInfo(name = "isActive")
+    private int isActive;
+
     ItemEntity(){
 
     }
 
-    ItemEntity(String name, int categoryId){
+    ItemEntity(String name, int categoryId, int isActive){
         this.name = name;
         this.category = categoryId;
+        this.isActive = isActive;
     }
 
     public void setItemId(int itemId){
@@ -73,5 +77,13 @@ public class ItemEntity {
     }
 
     public int getCategory(){ return category; }
+
+    public void setIsActive(int isActive){
+        this.isActive = isActive;
+    }
+
+    public int getIsActive(){
+        return this.isActive;
+    }
 
 }

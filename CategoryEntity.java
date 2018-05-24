@@ -13,11 +13,11 @@ public class CategoryEntity {
     @ColumnInfo(name = "name")
     private String name;
 
-    @ColumnInfo(name = "complete")
-    private int complete;
+    @ColumnInfo(name = "isComplete")
+    private int isComplete;
 
     @ColumnInfo(name = "isActive")
-    private int isActive;
+    private int isActive = 1;
 
     CategoryEntity(){
 
@@ -46,12 +46,12 @@ public class CategoryEntity {
         return name;
     }
 
-    public void setComplete(int complete){
-        this.complete = complete;
+    public void setIsComplete(int complete){
+        this.isComplete = complete;
     }
 
-    public int getComplete(){
-        return complete;
+    public int getIsComplete(){
+        return isComplete;
     }
 
     public int getIsActive() { return isActive; }

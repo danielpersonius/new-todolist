@@ -29,8 +29,16 @@ public interface ItemDAO {
     int countItems();
 
     // all items under a category
-    @Query("SELECT * FROM item WHERE category=:category")
-    List<ItemEntity> getItemsInCategory(int category);
+    @Query("SELECT * FROM item WHERE category=:categoryId")
+    List<ItemEntity> getItemsInCategory(int categoryId);
+
+    // all active items under a category
+    @Query("SELECT * FROM item WHERE category=:categoryId AND isActive=1")
+    List<ItemEntity> getActiveItemsInCategory(int categoryId);
+
+    // all inactive items under a category
+    @Query("SELECT * FROM item WHERE category=:categoryId AND isActive=0")
+    List<ItemEntity> getInactiveItemsInCategory(int categoryId);
 
     // for a list view of all incomplete items
     @Query("SELECT * FROM item WHERE complete = 0")
@@ -51,7 +59,8 @@ public interface ItemDAO {
     @Update
     void updateItems(ItemEntity... items);
 
-//    @Query("UPDATE item SET ")
+    @Update
+    void updateItems(List<ItemEntity> items);
 
     @Update
     void updateItem(ItemEntity item);

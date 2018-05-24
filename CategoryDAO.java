@@ -19,6 +19,10 @@ public interface CategoryDAO {
     @Query("SELECT * FROM category WHERE isActive=1")
     List<CategoryEntity> getAllActive();
 
+    // get only inactive
+    @Query("SELECT * FROM category WHERE isActive=0")
+    List<CategoryEntity> getAllInactive();
+
     // just get active names
     @Query("SELECT name FROM category")
     List<String> getAllCategoryNames();
@@ -33,8 +37,8 @@ public interface CategoryDAO {
     @Query("SELECT COUNT(*) FROM category")
     int countCategories();
 
-    // for a list view of all incomplete categories
-    @Query("SELECT * FROM category WHERE complete = 0")
+    // for a list view of all incomplete activeCategories
+    @Query("SELECT * FROM category WHERE isComplete = 0")
     List<CategoryEntity> loadAllIncompleteCategories();
 
     // INSERTs

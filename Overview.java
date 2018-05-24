@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
+import android.view.ContextMenu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,14 +18,26 @@ import android.widget.Toast;
 import java.util.*;
 
 /**
- * Created by daniel on 12/23/17
+ * landing page to show all categories
  */
 
 public class Overview extends AppCompatActivity{
+    //
+    final int DEACTIVATE_ID = 1;
+    //
+    final int ACTIVATE_ID = 2;
     // just the buttons being used
     List<Button> buttonsInUse;
-    List<CategoryEntity> categories;
+    List<CategoryEntity> activeCategories;
+    List<CategoryEntity> inactiveCategories;
+    List<CategoryEntity> allCategories;
     List<ItemEntity> categoryItems;
+    // ref to button that is long pressed
+    protected View pressed_button;
+    // database handle
+    protected AppDatabase db;
+    //
+    protected LinearLayout buttonContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,30 +48,34 @@ public class Overview extends AppCompatActivity{
         buttonsInUse = new ArrayList<>();
 
         // dynamically add buttons
-        final LinearLayout buttonContainer = findViewById(R.id.categoryContainer);
+        buttonContainer = findViewById(R.id.categoryContainer);
 
         // db
-        final AppDatabase db = AppDatabase.getAppDatabase(getApplicationContext());
+        db = AppDatabase.getAppDatabase(getApplicationContext());
 
         try{
-            // retrieve live categories
-            categories = db.categoryDAO().getAllActive();
+            // active categories
+            activeCategories = db.categoryDAO().getAllActive();
+            // inactive categories
+            inactiveCategories = db.categoryDAO().getAllInactive();
+            // all categories together
+            allCategories = activeCategories;
+            allCategories.addAll(inactiveCategories);
+
             // create and add buttons, setting colors according to completion statuses
             // cannot use foreach loop, since it does not change the base object
-            for(int i = 0; i < categories.size(); i++){
+            for(int i = 0; i < allCategories.size(); i++){
                 // add button
                 final Button b = new Button(this);
 
                 // set text
-                b.setText(categories.get(i).getName());
+                b.setText(allCategories.get(i).getName());
 
-                // set button attributes
-                b.setHeight(350);
-                b.setTextColor(-1);
-                b.setTextSize(30);
+                // set button
+                setButtonFeatures(allCategories.get(i), b);
 
                 // set color
-                setButtonColorAndAlpha(b, categories.get(i), db);
+                setButtonColor(allCategories.get(i), b);
 
                 // click listeners
                 addButtonListeners(b, buttonContainer, db);
@@ -75,7 +91,7 @@ public class Overview extends AppCompatActivity{
                 @Override
                 public void onClick(View view) {
                     // insert
-                    addCategory(buttonContainer, db);
+                    addCategory(buttonContainer);
                 }
             });
             buttonContainer.addView(addButton);
@@ -94,24 +110,56 @@ public class Overview extends AppCompatActivity{
     public void onResume(){
         super.onResume();
         // db
-        AppDatabase db = AppDatabase.getAppDatabase(getApplicationContext());
+        db = AppDatabase.getAppDatabase(getApplicationContext());
 
         // again, can't use foreach
         for(int i = 0; i < buttonsInUse.size(); i++){
-            setButtonColorAndAlpha(buttonsInUse.get(i), db.categoryDAO().findByName(buttonsInUse.get(i).getText().toString()), db);
+            setButtonColor(db.categoryDAO().findByName(buttonsInUse.get(i).getText().toString()), buttonsInUse.get(i));
         }
+    }
 
+    /**
+     * set text, height, text size, text color, alpha, and background color of item buttons
+     * @param category - corresponding ItemEntity
+     * @param b - current button
+     */
+    public void setButtonFeatures(CategoryEntity category, Button b){
+        b.setText(category.getName());
+        b.setHeight(350);
+        b.setTextSize(30);
+        b.setTextColor(-1);
+        setButtonColor(category, b);
+        // decrease alpha if item is inactive
+        if(category.getIsActive() != 1){
+            b.setAlpha((float)0.3);
+        }
+    }
+
+    /**
+     *
+     * @param category - corresponding category
+     * @param b - button to set color of
+     */
+    public void setButtonColor(CategoryEntity category, Button b){
+        // set color
+        if(isCategoryComplete(category)){
+            b.setBackgroundColor(getResources().getColor(R.color.complete));
+        }
+        else {
+            b.setBackgroundColor(getResources().getColor(R.color.incomplete));
+        }
+        // lower alpha if empty category, else default to full 255
+        if(isCategoryEmpty(category)) {
+            b.getBackground().setAlpha(100);
+        }
     }
 
     /**
      *
      * @param category - the category
-     * @param db - database handle
      */
-    public boolean isCategoryComplete(CategoryEntity category, AppDatabase db){
+    public boolean isCategoryComplete(CategoryEntity category){
         categoryItems = db.itemDAO().getItemsInCategory(category.getCategoryId());
-        // if empty category should show incomplete
-        //boolean isComplete = !isCategoryEmpty(cat, db);
         boolean isComplete = true;
 
         for (ItemEntity item : categoryItems) {
@@ -124,40 +172,29 @@ public class Overview extends AppCompatActivity{
         if (isComplete) {
             // may not want to change in the list and the db simultaneously
             // may want to either: combine the process or just read from db, eliminating the list
-            category.setComplete(1);
-            db.categoryDAO().findByName(category.getName()).setComplete(1);
+            category.setIsComplete(1);
+            db.categoryDAO().findByName(category.getName()).setIsComplete(1);
             return true;
         }
 
-        category.setComplete(0);
+        category.setIsComplete(0);
         return false;
     }
 
     /**
      *
      * @param category - the category
-     * @param db - database handle
      */
-    public boolean isCategoryEmpty(CategoryEntity category, AppDatabase db){
+    public boolean isCategoryEmpty(CategoryEntity category){
         categoryItems = db.itemDAO().getItemsInCategory(category.getCategoryId());
         return categoryItems.size() == 0;
     }
 
-    public void setButtonColorAndAlpha(Button b, CategoryEntity category, AppDatabase db){
-        // set color
-        if(isCategoryComplete(category, db)){
-            b.setBackgroundColor(getResources().getColor(R.color.complete));
-        }
-        else {
-            b.setBackgroundColor(getResources().getColor(R.color.incomplete));
-        }
-        // lower alpha if empty category, else default to full 255
-        if(isCategoryEmpty(category, db)) {
-            b.getBackground().setAlpha(100);
-        }
-    }
-
-    public void addCategory(final LinearLayout buttonContainer, final AppDatabase db){
+    /**
+     *
+     * @param buttonContainer -
+     */
+    public void addCategory(final LinearLayout buttonContainer){
         //final EditText input = dialogLayout.findViewById(R.id.new_item_name);
         final EditText input = new EditText(Overview.this);
         AlertDialog.Builder addDialog = new AlertDialog.Builder(Overview.this);
@@ -170,16 +207,11 @@ public class Overview extends AppCompatActivity{
                         // insert
                         try {
                             db.categoryDAO().insertAll(newCategory);
-                            // add new button to layout
+                            // create button and add to layout
                             Button newCategoryButton = new Button(Overview.this);
-                            setButtonColorAndAlpha(newCategoryButton, newCategory, db);
-                            newCategoryButton.setText(newCategory.getName());
-                            newCategoryButton.setHeight(350);
-                            newCategoryButton.setTextSize(30);
-                            newCategoryButton.setTextColor(-1);
+                            setButtonFeatures(newCategory, newCategoryButton);
                             addButtonListeners(newCategoryButton, buttonContainer, db);
                             buttonsInUse.add(newCategoryButton);
-
                             buttonContainer.addView(newCategoryButton);
 
                         } catch (Exception e) {
@@ -200,7 +232,7 @@ public class Overview extends AppCompatActivity{
     }
 
     public void addButtonListeners(final Button button, final LinearLayout buttonContainer, final AppDatabase db){
-        // set edit listeners
+        // short click
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -208,93 +240,123 @@ public class Overview extends AppCompatActivity{
             }
         });
 
-        //
-        button.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(final View view) {
-                // get item to change name or delete
-                final CategoryEntity category = db.categoryDAO().findByName(button.getText().toString());
-                AlertDialog.Builder builder = new AlertDialog.Builder(Overview.this);
-                builder.setTitle("options")
-                        //
-                        .setPositiveButton("change name", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                final EditText input = new EditText(Overview.this);
-                                // fill in current name
-                                input.setText(button.getText());
-                                // set cursor at end
-                                input.setSelection(input.getText().length());
+        // long click - allow context menu to show on long press
+        // context menu will show on long press
+        registerForContextMenu(button);
+        button.setOnCreateContextMenuListener(this);
+    }
 
-                                // set up dialog box
-                                AlertDialog.Builder alertDialog = new AlertDialog.Builder(Overview.this);
-                                alertDialog.setTitle("change name")
-                                        .setView(input)
-                                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                button.setText(input.getText().toString());
-                                                // change item name
-                                                category.setName(button.getText().toString());
-                                                // change in db
-                                                try{
-                                                    db.categoryDAO().updateItem(category);
-                                                }
-                                                catch(Exception e){
-                                                    // show toast
-                                                    Toast.makeText(Overview.this, "Could not change name", Toast.LENGTH_SHORT).show();
-                                                    Log.d("UPDATE", "failure updating "  + category.getName() + ": " + category.getCategoryId() + " - " + e.getMessage());
-                                                }
-                                            }
-                                        })
-                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int i) {
-                                                dialog.cancel();
-                                            }
-                                        });
-                                alertDialog.create().show();
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.item_options_menu, menu);
+        this.pressed_button = v;
+        // if item is currently active, display 'deactivate' option
+        // if inactive, show 'activate'
+        if(db.categoryDAO().findByName(((Button) this.pressed_button).getText().toString()).getIsActive() == 1){
+            //groupId, itemId, order, title
+            menu.add(0, DEACTIVATE_ID, 1, R.string.deactivate_item);
+        }
+        else {
+            menu.add(0, ACTIVATE_ID, 1, R.string.activate_item);
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        final Button button = (Button) this.pressed_button;
+        // get item to change name or delete
+        final CategoryEntity selected_category = db.categoryDAO().findByName(button.getText().toString());
+        //find out which menu item was pressed
+        switch (item.getItemId()) {
+            case R.id.change_item_name:
+                final EditText input = new EditText(Overview.this);
+                // fill in current name
+                input.setText(button.getText());
+                // set cursor at end
+                input.setSelection(input.getText().length());
+
+                // set up dialog box
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(Overview.this);
+                alertDialog.setTitle("change name")
+                        .setView(input)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                button.setText(input.getText().toString());
+                                // change item name
+                                selected_category.setName(button.getText().toString());
+                                // change in db
+                                try{
+                                    db.categoryDAO().updateItem(selected_category);
+                                }
+                                catch(Exception e){
+                                    // show toast
+                                    Toast.makeText(Overview.this, "Could not change name", Toast.LENGTH_SHORT).show();
+                                    Log.d("UPDATE", "failure updating "  + selected_category.getCategoryId() + ": " + e.getMessage());
+                                }
                             }
                         })
-                        .setNegativeButton("delete", new DialogInterface.OnClickListener() {
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                db.categoryDAO().delete(category);
-                                // remove button
-                                buttonContainer.removeView(button);
-                            }
-                        })
-                        .setNeutralButton("cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
+                            public void onClick(DialogInterface dialog, int i) {
                                 dialog.cancel();
                             }
                         });
-                builder.create().show();
+                alertDialog.create().show();
 
                 return true;
-            }
-        });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.overview_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // action with ID action_settings was selected
-            case R.id.action_settings:
-                Intent intent = new Intent(this, Settings.class);
-                startActivity(intent);
-                break;
+            case R.id.delete_item:
+                try {
+                    db.categoryDAO().delete(selected_category);
+                    this.buttonContainer.removeView(this.pressed_button);
+                    return true;
+                }
+                catch(Exception e){
+                    Toast.makeText(Overview.this, "Could not delete", Toast.LENGTH_SHORT).show();
+                }
+                return false;
+            case DEACTIVATE_ID:
+                try{
+                    selected_category.setIsActive(0);
+                    db.categoryDAO().updateItems(selected_category);
+                    //move button to bottom
+                    this.buttonContainer.removeView(this.pressed_button);
+                    this.buttonContainer.addView(this.pressed_button);
+                    // decrease alpha
+                    this.pressed_button.setAlpha((float)0.3);
+                    // deactivate all items contained
+                    List<ItemEntity> items = db.itemDAO().getActiveItemsInCategory(selected_category.getCategoryId());
+                    for(ItemEntity i : items){
+                        i.setIsActive(0);
+                    }
+                    db.itemDAO().updateItems(items);
+                    return true;
+                }
+                catch (Exception e){
+                    Toast.makeText(Overview.this, "Could not deactivate", Toast.LENGTH_SHORT).show();
+                }
+                return false;
+            case ACTIVATE_ID:
+                try{
+                    selected_category.setIsActive(1);
+                    db.categoryDAO().updateItems(selected_category);
+                    this.pressed_button.setAlpha((float)1.0);
+                    // activate all items contained
+                    List<ItemEntity> items = db.itemDAO().getItemsInCategory(selected_category.getCategoryId());
+                    for(ItemEntity i : items){
+                        i.setIsActive(1);
+                    }
+                    db.itemDAO().updateItems(items);
+                    return true;
+                }
+                catch (Exception e){
+                    Toast.makeText(Overview.this, "Could not activate", Toast.LENGTH_SHORT).show();
+                }
+                return false;
             default:
-                break;
+                return false;
         }
-        return true;
     }
 
     /**
