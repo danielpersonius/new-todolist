@@ -3,25 +3,30 @@ package com.example.daniel.todo_list;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Typeface;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.*;
 
 /**
  * landing page to show all categories
+ * extends Page, which extends AppCompatActivity
  */
 
-public class Overview extends AppCompatActivity{
+public class Overview extends Page {
     //
     final int DEACTIVATE_ID = 1;
     //
@@ -42,6 +47,8 @@ public class Overview extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // set action bar text
+        setTitle("Categories");
         setContentView(R.layout.overview);
 
         // initialize list of buttons in use
@@ -143,10 +150,10 @@ public class Overview extends AppCompatActivity{
     public void setButtonColor(CategoryEntity category, Button b){
         // set color
         if(isCategoryComplete(category)){
-            b.setBackgroundColor(getResources().getColor(R.color.complete));
+            b.setBackgroundColor(getResources().getColor(R.color.COLOR_COMPLETE));
         }
         else {
-            b.setBackgroundColor(getResources().getColor(R.color.incomplete));
+            b.setBackgroundColor(getResources().getColor(R.color.COLOR_INCOMPLETE));
         }
         // lower alpha if empty category, else default to full 255
         if(isCategoryEmpty(category)) {

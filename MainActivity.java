@@ -43,7 +43,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if(checkPassword()){
-                    showOverview();
+                    Intent intent = new Intent(MainActivity.this, LandingPage.class);
+                    startActivity(intent);
                 }
             }
 
@@ -74,14 +75,4 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, Overview.class);
         startActivity(intent);
     }
-
-    /*
-    public void setInputStr(String newStr){
-        this.inputStr = newStr;
-    }
-
-    public String getInputString(EditText box){
-        return box.getText().toString();
-    }
-    */
 }

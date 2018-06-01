@@ -20,10 +20,11 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * Created by daniel on 12/24/17.
+ * page to show the items in a category
+ * extends Page, which extends AppCompatActivity
  */
 
-public class CategoryPage extends AppCompatActivity{
+public class CategoryPage extends Page {
     //
     final int DEACTIVATE_ID = 1;
     //
@@ -31,7 +32,7 @@ public class CategoryPage extends AppCompatActivity{
     // just the buttons being used
     ArrayList<Button> buttonsInUse;
     //
-    protected View pressed_button;
+    protected View pressedButton;
     //
     protected AppDatabase db;
     //
@@ -40,11 +41,8 @@ public class CategoryPage extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // remove title bar
-        ActionBar bar = this.getSupportActionBar();
-        if(bar != null){
-            bar.hide();
-        }
+        // set action bar title
+        setTitle("items");
         setContentView(R.layout.category_page);
 
         // get category name
@@ -144,13 +142,13 @@ public class CategoryPage extends AppCompatActivity{
     public void setButtonColor(ItemEntity item, Button b){
         int isComplete = item.getComplete();
         if(isComplete == 1){
-            b.setBackgroundColor(getResources().getColor(R.color.complete));
+            b.setBackgroundColor(getResources().getColor(R.color.COLOR_COMPLETE));
         }
         else if(isComplete == 2){
-            b.setBackgroundColor(getResources().getColor(R.color.in_progress));
+            b.setBackgroundColor(getResources().getColor(R.color.COLOR_IN_PROGRESS));
         }
         else {
-            b.setBackgroundColor(getResources().getColor(R.color.incomplete));
+            b.setBackgroundColor(getResources().getColor(R.color.COLOR_INCOMPLETE));
         }
     }
 
@@ -175,7 +173,7 @@ public class CategoryPage extends AppCompatActivity{
                             db.itemDAO().insertAll(newItem);
                             // add new button to layout
                             Button newItemButton = new Button(CategoryPage.this);
-                            newItemButton.setBackgroundColor(getResources().getColor(R.color.incomplete));
+                            newItemButton.setBackgroundColor(getResources().getColor(R.color.COLOR_INCOMPLETE));
                             newItemButton.setText(newItem.getName());
                             newItemButton.setHeight(250);
                             newItemButton.setTextSize(30);
@@ -210,18 +208,18 @@ public class CategoryPage extends AppCompatActivity{
                 int colorId = ((ColorDrawable) button.getBackground()).getColor();
                 // can't use switch statement since get color int not resolvable at compile time
                 // if not started, set to in progress
-                if(colorId == getResources().getColor(R.color.incomplete)){
+                if(colorId == getResources().getColor(R.color.COLOR_INCOMPLETE)){
                     // change color
-                    button.setBackgroundColor(getResources().getColor(R.color.in_progress));
+                    button.setBackgroundColor(getResources().getColor(R.color.COLOR_IN_PROGRESS));
                     // change in db
                     db.itemDAO().updateItemCompletion(db.itemDAO().findByName(button.getText().toString()).getItemId(), 2);
                 }
-                else if(colorId == getResources().getColor(R.color.in_progress)){
-                    button.setBackgroundColor(getResources().getColor(R.color.complete));
+                else if(colorId == getResources().getColor(R.color.COLOR_IN_PROGRESS)){
+                    button.setBackgroundColor(getResources().getColor(R.color.COLOR_COMPLETE));
                     db.itemDAO().updateItemCompletion(db.itemDAO().findByName(button.getText().toString()).getItemId(), 1);
                 }
                 else {
-                    button.setBackgroundColor(getResources().getColor(R.color.incomplete));
+                    button.setBackgroundColor(getResources().getColor(R.color.COLOR_INCOMPLETE));
                     db.itemDAO().updateItemCompletion(db.itemDAO().findByName(button.getText().toString()).getItemId(), 0);
                 }
             }
@@ -238,10 +236,10 @@ public class CategoryPage extends AppCompatActivity{
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.item_options_menu, menu);
-        this.pressed_button = v;
+        this.pressedButton = v;
         // if item is currently active, display 'deactivate' option
         // if inactive, show 'activate'
-        if(db.itemDAO().findByName(((Button) this.pressed_button).getText().toString()).getIsActive() == 1){
+        if(db.itemDAO().findByName(((Button) this.pressedButton).getText().toString()).getIsActive() == 1){
             //groupId, itemId, order, title
             menu.add(0, DEACTIVATE_ID, 1, R.string.deactivate_item);
         }
@@ -252,7 +250,7 @@ public class CategoryPage extends AppCompatActivity{
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        final Button button = (Button) this.pressed_button;
+        final Button button = (Button) this.pressedButton;
         // get item to change name or delete
         final ItemEntity selected_item = db.itemDAO().findByName(button.getText().toString());
         //find out which menu item was pressed
@@ -296,7 +294,7 @@ public class CategoryPage extends AppCompatActivity{
             case R.id.delete_item:
                 try {
                     db.itemDAO().delete(selected_item);
-                    this.buttonContainer.removeView(this.pressed_button);
+                    this.buttonContainer.removeView(this.pressedButton);
                     return true;
                 }
                 catch(Exception e){
@@ -308,10 +306,10 @@ public class CategoryPage extends AppCompatActivity{
                     selected_item.setIsActive(0);
                     db.itemDAO().updateItems(selected_item);
                     //move button to bottom
-                    this.buttonContainer.removeView(this.pressed_button);
-                    this.buttonContainer.addView(this.pressed_button);
+                    this.buttonContainer.removeView(this.pressedButton);
+                    this.buttonContainer.addView(this.pressedButton);
                     // decrease alpha
-                    this.pressed_button.setAlpha((float)0.3);
+                    this.pressedButton.setAlpha((float)0.3);
                     return true;
                 }
                 catch (Exception e){
@@ -322,7 +320,7 @@ public class CategoryPage extends AppCompatActivity{
                 try{
                     selected_item.setIsActive(1);
                     db.itemDAO().updateItems(selected_item);
-                    this.pressed_button.setAlpha((float)1.0);
+                    this.pressedButton.setAlpha((float)1.0);
                     return true;
                 }
                 catch (Exception e){
