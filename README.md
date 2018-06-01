@@ -20,7 +20,11 @@ TODO
     - yearly
 - landing page including links to
     - goals page
-    - todo categories page
     - Ike page
     - habits page
     - notes page
+- bullet journal
+    - add database tables to allow for persistent storage
+    - add clickable calendar
+    - add month view and relevant pages
+    - allow for page creation and editing
